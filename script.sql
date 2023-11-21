@@ -1,15 +1,35 @@
--- 1.5 Escrever as functions
--- 1.5.1 Responder se todos os estudantes de renda acima de 410 são aprovados (grade > 0)
-CREATE OR REPLACE FUNCTION fn_students_above_salary()
+--1.5.2 Responder se pelo menos 70% dos estudantes que fazem anotações durante as aulas são aprovados (grade > 0)
+CREATE OR REPLACE FUNCTION fn_students_with_notes()
 RETURNS BOOLEAN
 AS $$
+DECLARE
+    v_total_with_notes INT;
+    v_approved_with_notes INT;
+    v_percentage NUMERIC;
 BEGIN
-    RETURN NOT EXISTS (
-        SELECT 1 FROM student_performance WHERE SALARY > 410 AND GRADE <= 0
-    );
+    SELECT COUNT(*) INTO v_total_with_notes FROM student_performance WHERE NOTES IS NOT NULL;
+    SELECT COUNT(*) INTO v_approved_with_notes FROM student_performance WHERE NOTES IS NOT NULL AND GRADE > 0;
+    
+    v_percentage := (v_approved_with_notes * 100.0 / v_total_with_notes);
+    
+    RETURN v_percentage >= 70;
 END;
 $$
 LANGUAGE plpgsql;
+
+
+-- 1.5 Escrever as functions
+-- 1.5.1 Responder se todos os estudantes de renda acima de 410 são aprovados (grade > 0)
+-- CREATE OR REPLACE FUNCTION fn_students_above_salary()
+-- RETURNS BOOLEAN
+-- AS $$
+-- BEGIN
+--     RETURN NOT EXISTS (
+--         SELECT 1 FROM student_performance WHERE SALARY > 410 AND GRADE <= 0
+--     );
+-- END;
+-- $$
+-- LANGUAGE plpgsql;
 
 
 -- 1.4.3 Receber um sexo como parâmetro em modo IN e utilizar oito parâmetros em modo OUT para dizer qual o percentual de cada nota obtida por estudantes daquele sexo.
