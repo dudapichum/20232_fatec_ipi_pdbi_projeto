@@ -1,24 +1,38 @@
--- 1.4.3 Receber um sexo como parâmetro em modo IN e utilizar oito parâmetros em modo OUT para dizer qual o percentual de cada nota obtida por estudantes daquele sexo.
-CREATE OR REPLACE PROCEDURE sp_percentage_notes_by_gender(
-    IN p_gender VARCHAR(10),
-    OUT p_note_0_1 NUMERIC,
-    OUT p_note_1_2 NUMERIC,
-    --... outros parâmetros OUT para notas
-    OUT p_note_9_10 NUMERIC
-) LANGUAGE plpgsql
+-- 1.5 Escrever as functions
+-- 1.5.1 Responder se todos os estudantes de renda acima de 410 são aprovados (grade > 0)
+CREATE OR REPLACE FUNCTION fn_students_above_salary()
+RETURNS BOOLEAN
 AS $$
 BEGIN
-    SELECT
-        (COUNT(*) FILTER (WHERE GENDER = p_gender AND GRADE BETWEEN 0 AND 1) * 100.0 / COUNT(*)),
-        --... calcula outros percentuais de notas
-        (COUNT(*) FILTER (WHERE GENDER = p_gender AND GRADE BETWEEN 9 AND 10) * 100.0 / COUNT(*))
-    INTO
-        p_note_0_1,
-        --... atribuição para outros parâmetros OUT
-        p_note_9_10
-    FROM student_performance;
+    RETURN NOT EXISTS (
+        SELECT 1 FROM student_performance WHERE SALARY > 410 AND GRADE <= 0
+    );
 END;
-$$;
+$$
+LANGUAGE plpgsql;
+
+
+-- 1.4.3 Receber um sexo como parâmetro em modo IN e utilizar oito parâmetros em modo OUT para dizer qual o percentual de cada nota obtida por estudantes daquele sexo.
+-- CREATE OR REPLACE PROCEDURE sp_percentage_notes_by_gender(
+--     IN p_gender VARCHAR(10),
+--     OUT p_note_0_1 NUMERIC,
+--     OUT p_note_1_2 NUMERIC,
+--     --... outros parâmetros OUT para notas
+--     OUT p_note_9_10 NUMERIC
+-- ) LANGUAGE plpgsql
+-- AS $$
+-- BEGIN
+--     SELECT
+--         (COUNT(*) FILTER (WHERE GENDER = p_gender AND GRADE BETWEEN 0 AND 1) * 100.0 / COUNT(*)),
+--         --... calcula outros percentuais de notas
+--         (COUNT(*) FILTER (WHERE GENDER = p_gender AND GRADE BETWEEN 9 AND 10) * 100.0 / COUNT(*))
+--     INTO
+--         p_note_0_1,
+--         --... atribuição para outros parâmetros OUT
+--         p_note_9_10
+--     FROM student_performance;
+-- END;
+-- $$;
 
 
 -- 1.4.2 Exibir o percentual de estudantes de cada sexo
