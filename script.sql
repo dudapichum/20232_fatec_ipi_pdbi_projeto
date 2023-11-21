@@ -1,21 +1,43 @@
---1.5.2 Responder se pelo menos 70% dos estudantes que fazem anotações durante as aulas são aprovados (grade > 0)
-CREATE OR REPLACE FUNCTION fn_students_with_notes()
-RETURNS BOOLEAN
+-- 1.5.3 Devolver o percentual de alunos que se preparam pelo menos um pouco para os "midterm exams" e que são aprovados (grade > 0)
+CREATE OR REPLACE FUNCTION fn_students_prep_exam()
+RETURNS NUMERIC
 AS $$
 DECLARE
-    v_total_with_notes INT;
-    v_approved_with_notes INT;
-    v_percentage NUMERIC;
+    v_total_prep_exam INT;
+    v_approved_prep_exam INT;
 BEGIN
-    SELECT COUNT(*) INTO v_total_with_notes FROM student_performance WHERE NOTES IS NOT NULL;
-    SELECT COUNT(*) INTO v_approved_with_notes FROM student_performance WHERE NOTES IS NOT NULL AND GRADE > 0;
-    
-    v_percentage := (v_approved_with_notes * 100.0 / v_total_with_notes);
-    
-    RETURN v_percentage >= 70;
+    SELECT COUNT(*) INTO v_total_prep_exam FROM student_performance WHERE PREP_EXAM IS NOT NULL;
+    SELECT COUNT(*) INTO v_approved_prep_exam FROM student_performance WHERE PREP_EXAM IS NOT NULL AND GRADE > 0;
+
+    IF v_total_prep_exam > 0 THEN
+        RETURN (v_approved_prep_exam * 100.0 / v_total_prep_exam);
+    ELSE
+        RETURN 0;
+    END IF;
 END;
 $$
 LANGUAGE plpgsql;
+
+
+
+--1.5.2 Responder se pelo menos 70% dos estudantes que fazem anotações durante as aulas são aprovados (grade > 0)
+-- CREATE OR REPLACE FUNCTION fn_students_with_notes()
+-- RETURNS BOOLEAN
+-- AS $$
+-- DECLARE
+--     v_total_with_notes INT;
+--     v_approved_with_notes INT;
+--     v_percentage NUMERIC;
+-- BEGIN
+--     SELECT COUNT(*) INTO v_total_with_notes FROM student_performance WHERE NOTES IS NOT NULL;
+--     SELECT COUNT(*) INTO v_approved_with_notes FROM student_performance WHERE NOTES IS NOT NULL AND GRADE > 0;
+    
+--     v_percentage := (v_approved_with_notes * 100.0 / v_total_with_notes);
+    
+--     RETURN v_percentage >= 70;
+-- END;
+-- $$
+-- LANGUAGE plpgsql;
 
 
 -- 1.5 Escrever as functions
